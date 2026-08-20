@@ -70,9 +70,7 @@ function extractJsonBlock(text) {
   }
 }
 
-const SYSTEM_PROMPT_VERIFICA = env.SYSTEM_PROMPT_VERIFICA || FALLBACK_PROMPT
-
-async function verificaConGemini(apiKeys, model, domanda, rispostaCorretta, rispostaUtente) {
+async function verificaConGemini(apiKeys, model, systemPrompt, domanda, rispostaCorretta, rispostaUtente) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=PLACEHOLDER`
 
   const userPrompt = `Domanda: ${domanda}
@@ -87,7 +85,7 @@ Risposta data dall'utente: ${rispostaUtente}`
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-          systemInstruction: { parts: [{ text: SYSTEM_PROMPT_VERIFICA }] },
+          systemInstruction: { parts: [{ text: systemPrompt }] },
           generationConfig: {
             temperature: 0,
             maxOutputTokens: MAX_OUTPUT_TOKENS,
@@ -141,6 +139,11 @@ export default {
         return jsonResponse({ error: "Configurazione server mancante" }, 500, origin)
       }
 
+      const systemPrompt = env.SYSTEM_PROMPT_VERIFICA
+      if (!systemPrompt) {
+        return jsonResponse({ error: "SYSTEM_PROMPT_VERIFICA non configurato" }, 500, origin)
+      }
+
       let body
       try {
         body = await request.json()
@@ -163,7 +166,7 @@ export default {
       const model = env.GEMINI_MODEL || DEFAULT_MODEL
 
       try {
-        const corretta = await verificaConGemini(apiKeys, model, domanda, rispostaCorretta, rispostaUtente)
+        const corretta = await verificaConGemini(apiKeys, model, systemPrompt, domanda, rispostaCorretta, rispostaUtente)
         return jsonResponse({ corretta }, 200, origin)
       } catch (err) {
         return jsonResponse({ error: err.message || "Errore Gemini" }, 502, origin)
