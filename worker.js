@@ -1,5 +1,5 @@
 const ALLOWED_ORIGIN_PATTERN =
-  /^https?:\/\/(([\w-]+\.)?insidegubbio\.com|([\w-]+\.)?insidegubbio\.framer\.ai)$/
+  /^https?:\/\/(([\w-]+\.)?tvn\.insidegubbio\.com|([\w-]+\.)?tvn-insidegubbio\.framer\.ai)$/
 
 const DEFAULT_MODEL = "gemini-3.5-flash-lite"
 const GEMINI_TIMEOUT = 15000
